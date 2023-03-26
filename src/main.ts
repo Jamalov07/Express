@@ -12,6 +12,7 @@ async function bootstrap() {
     app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     app.enableCors();
+    
     const config = new DocumentBuilder()
       .setTitle('AKMAL EXPRESS')
       .setDescription('REST API')
