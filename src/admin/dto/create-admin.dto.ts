@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateAdminDto {
   @ApiProperty({ example: "Jamalov No'monjon", description: 'Admin full name' })
@@ -18,22 +18,22 @@ export class CreateAdminDto {
     example: '+998 94 917 41 27',
     description: 'Admin phone number',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   phone_number: string;
   @ApiProperty({ example: 'JamalovN07@gmail.com', description: 'Admin email' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   email: string;
   @ApiProperty({
     example: '@New_Prime_Minister_of_Uzbekistan',
     description: 'telegram username',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   tg_link: string;
   @ApiProperty({ example: 'about me', description: 'descprition' })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   description: string;
 }
