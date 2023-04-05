@@ -14,26 +14,5 @@ export class CreateAdminDto {
   @IsNotEmpty()
   @IsString()
   hashed_password: string;
-  @ApiProperty({
-    example: '+998 94 917 41 27',
-    description: 'Admin phone number',
-  })
-  @IsOptional()
-  @IsString()
-  phone_number: string;
-  @ApiProperty({ example: 'JamalovN07@gmail.com', description: 'Admin email' })
-  @IsOptional()
-  @IsString()
-  email: string;
-  @ApiProperty({
-    example: '@New_Prime_Minister_of_Uzbekistan',
-    description: 'telegram username',
-  })
-  @IsOptional()
-  @IsString()
-  tg_link: string;
-  @ApiProperty({ example: 'about me', description: 'descprition' })
-  @IsOptional()
-  @IsString()
-  description: string;
+
 }

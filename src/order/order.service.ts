@@ -33,9 +33,9 @@ export class OrderService {
         { all: true },
       ],
     });
-    if (!allOrders.length) {
-      throw new NotFoundException('order not found');
-    }
+    // if (!allOrders.length) {
+    //   throw new NotFoundException('order not found');
+    // }
     return allOrders;
   }
 

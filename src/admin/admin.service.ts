@@ -41,28 +41,6 @@ export class AdminService {
     if (userNameCandidate) {
       throw new BadRequestException('This admin already exists');
     }
-
-    const emailCandidate = await this.adminRepo.findOne({
-      where: { email: createAdminDto.email },
-    });
-    if (emailCandidate) {
-      throw new BadRequestException('This admin already exists');
-    }
-
-    const phoneNumberCandidate = await this.adminRepo.findOne({
-      where: { phone_number: createAdminDto.phone_number },
-    });
-    if (phoneNumberCandidate) {
-      throw new BadRequestException('This admin already exists');
-    }
-
-    const tgLinkCandidate = await this.adminRepo.findOne({
-      where: { tg_link: createAdminDto.tg_link },
-    });
-    if (tgLinkCandidate) {
-      throw new BadRequestException('This admin already exists');
-    }
-
     const hashed_password = await bcrypt.hash(
       createAdminDto.hashed_password,
       7,
@@ -93,33 +71,6 @@ export class AdminService {
         throw new BadRequestException('This admin already exists');
       }
     }
-    if (updateAdminDto.email) {
-      const emailCandidate = await this.adminRepo.findOne({
-        where: { email: updateAdminDto.email },
-      });
-      if (emailCandidate && emailCandidate.id != id) {
-        throw new BadRequestException('This admin already exists');
-      }
-    }
-
-    if (updateAdminDto.phone_number) {
-      const phoneNumberCandidate = await this.adminRepo.findOne({
-        where: { phone_number: updateAdminDto.phone_number },
-      });
-      if (phoneNumberCandidate && phoneNumberCandidate.id != id) {
-        throw new BadRequestException('This admin already exists');
-      }
-    }
-
-    if (updateAdminDto.tg_link) {
-      const tgLinkCandidate = await this.adminRepo.findOne({
-        where: { tg_link: updateAdminDto.tg_link },
-      });
-      if (tgLinkCandidate && tgLinkCandidate.id != id) {
-        throw new BadRequestException('This admin already exists');
-      }
-    }
-
     await admin.update({
       ...updateAdminDto,
       is_active: admin.is_active,
@@ -147,7 +98,9 @@ export class AdminService {
     if (!admin) {
       throw new UnauthorizedException('Admin is not registered1');
     }
-
+    if (!admin.is_active) {
+      throw new BadRequestException('Admin is not active');
+    }
     const ifTrue = await bcrypt.compare(password, admin.hashed_password);
     if (!ifTrue) {
       throw new UnauthorizedException('Admin is not registered2');
@@ -211,18 +164,18 @@ export class AdminService {
 
   async activate(id: number) {
     const admin = await this.findOne(id);
-    if (admin.is_active == true) {
-      throw new BadRequestException('Admin is already activated');
-    }
+    // if (admin.is_active == true) {
+    //   throw new BadRequestException('Admin is already activated');
+    // }
     await admin.update({ is_active: true });
     return { message: 'admin is activated', admin };
   }
 
   async deActivate(id: number) {
     const admin = await this.findOne(id);
-    if (!admin.is_active) {
-      throw new BadRequestException('Admin is already inactive');
-    }
+    // if (!admin.is_active) {
+    //   throw new BadRequestException('Admin is already inactive');
+    // }
     await admin.update({ is_active: false });
     return { message: 'Admin is inactivated', admin };
   }
@@ -240,9 +193,9 @@ export class AdminService {
 
   async findAll() {
     const allAdmin = await this.adminRepo.findAll({ include: { all: true } });
-    if (!allAdmin.length) {
-      throw new NotFoundException('admins not found');
-    }
+    // if (!allAdmin.length) {
+    //   throw new NotFoundException('admins not found');
+    // }
     return allAdmin;
   }
 
@@ -321,7 +274,11 @@ export class AdminService {
         });
 
         if (adminData) {
-          if (adminData.id && adminData.is_active && adminData.is_creator) {
+          if (
+            adminData.id &&
+            adminData.is_active !== undefined &&
+            adminData.is_creator !== undefined
+          ) {
             const admin = await this.adminRepo.findOne({
               where: { id: adminData.id },
               include: { all: true },
