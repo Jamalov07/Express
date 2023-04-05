@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -308,5 +310,33 @@ export class AdminService {
       { where: { id: adminId } },
     );
     return this.findOne(adminId);
+  }
+
+  async checkToken(data: { token: string }) {
+    try {
+      // console.log(data.token, 'buuu');
+      if (data.token) {
+        const adminData = new JwtService().verify(data.token, {
+          secret: process.env.ACCESS_TOKEN_KEY,
+        });
+
+        if (adminData) {
+          if (adminData.id && adminData.is_active && adminData.is_creator) {
+            const admin = await this.adminRepo.findOne({
+              where: { id: adminData.id },
+              include: { all: true },
+            });
+            if (admin) {
+              return { isValid: true, admin };
+            }
+          }
+          console.log(adminData);
+        }
+      }
+      return { isValid: false };
+    } catch (error) {
+      console.log(error);
+      return { isValid: false, error: error.message };
+    }
   }
 }

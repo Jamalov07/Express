@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   Res,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
@@ -95,5 +96,11 @@ export class AdminController {
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: ReqWithAdmin) {
     return this.adminService.remove(+id, req);
+  }
+
+  @Post('check')
+  // @HttpCode(200)
+  checkToken(@Body() tokens: { token: string }) {
+    return this.adminService.checkToken(tokens);
   }
 }
