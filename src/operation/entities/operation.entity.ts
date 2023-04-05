@@ -12,9 +12,8 @@ import {
 import { Order } from '../../order/entities/order.entity';
 
 interface OperationAttr {
-  order_unique_id: string;
+  order_id: number;
   status_id: number;
-  operation_date: Date;
   admin_id: number;
   description: string;
 }
@@ -41,15 +40,8 @@ export class Operation extends Model<Operation, OperationAttr> {
   order: Order;
 
   @ApiProperty({ example: 1, description: 'status id' })
-  @ForeignKey(() => Status)
   @Column({ type: DataType.INTEGER })
   status_id: number;
-  @BelongsTo(() => Status)
-  status: Status;
-
-  @ApiProperty({ example: '12-12-2012', description: 'Order updated date' })
-  @Column({ type: DataType.DATE })
-  operation_date: Date;
 
   @ApiProperty({ example: 2, description: 'Admin id' })
   @ForeignKey(() => Admin)

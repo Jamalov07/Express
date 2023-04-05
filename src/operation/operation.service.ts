@@ -18,19 +18,29 @@ export class OperationService {
   ) {}
 
   async create(createOperationDto: CreateOperationDto, req: ReqWithAdmin) {
-    let date = new Date();
+    const orderOperations = await this.operationRepo.findAll({
+      where: { order_id: createOperationDto.order_id },
+      order: [['createdAt', 'DESC']],
+    });
+    if (orderOperations.length) {
+      if (
+        createOperationDto.status_id -
+          orderOperations[orderOperations.length - 1].status_id !==
+          1 &&
+        createOperationDto.status_id > 3
+      ) {
+        throw new BadRequestException(
+          'Status incorrect or order operations in this order  finished',
+        );
+      } 
+    }
+
     let adminId = req.admin.id;
     const newOperation = await this.operationRepo.create({
       ...createOperationDto,
-      operation_date: date,
       admin_id: adminId,
     });
-    if (createOperationDto.order_id) {
-      await this.orderRepo.update(
-        { truck: createOperationDto.truck },
-        { where: { id: createOperationDto.order_id } },
-      );
-    }
+
     return this.findOne(newOperation.id);
   }
 
@@ -38,9 +48,6 @@ export class OperationService {
     const allOperations = await this.operationRepo.findAll({
       include: { all: true },
     });
-    if (!allOperations.length) {
-      throw new BadRequestException('operation not found');
-    }
     return allOperations;
   }
 

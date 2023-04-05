@@ -2,10 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
-  @ApiProperty({ example: 'a10321', description: 'Order unique id' })
-  @IsNotEmpty()
-  @IsString()
-  order_unique_id: string;
   @ApiProperty({ example: 'Sobirov Komil', description: 'Client full name' })
   @IsNotEmpty()
   @IsString()
@@ -25,19 +21,9 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   summa: number;
-  @ApiProperty({ example: 1, description: 'Currency type id' })
+  @ApiProperty({ example: '20 000', description: 'Product summa' })
   @IsNotEmpty()
   @IsNumber()
-  currency_type_id: number;
-  @ApiProperty({ example: '10a103aa', description: 'Truck symbol' })
-  @IsOptional()
-  @IsString()
-  truck: string;
-  @ApiProperty({
-    example: 'about order',
-    description: 'Order description',
-  })
-  @IsNotEmpty()
-  @IsString()
-  description: string;
+  advance_payment: number;
+ 
 }

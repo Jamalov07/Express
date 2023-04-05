@@ -192,7 +192,10 @@ export class AdminService {
   }
 
   async findAll() {
-    const allAdmin = await this.adminRepo.findAll({ include: { all: true } });
+    const allAdmin = await this.adminRepo.findAll({
+      include: { all: true },
+      order: [['createdAt', 'DESC']],
+    });
     // if (!allAdmin.length) {
     //   throw new NotFoundException('admins not found');
     // }

@@ -7,19 +7,24 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
+import { Operation } from '../operation/entities/operation.entity';
+import { ReqWithAdmin } from '../interfaces/ReqWithAdmin';
 
 @Injectable()
 export class OrderService {
-  constructor(@InjectModel(Order) private orderRepo: typeof Order) {}
+  constructor(
+    @InjectModel(Order) private orderRepo: typeof Order,
+    @InjectModel(Operation) private operationRepo: typeof Operation,
+  ) {}
 
-  async create(createOrderDto: CreateOrderDto) {
-    const candidate = await this.orderRepo.findOne({
-      where: { order_unique_id: createOrderDto.order_unique_id },
-    });
-    if (candidate) {
-      throw new BadRequestException('This order already exists');
-    }
+  async create(createOrderDto: CreateOrderDto, req: ReqWithAdmin) {
     const newOrder = await this.orderRepo.create(createOrderDto);
+    await newOrder.update({ order_unique_id: String(newOrder.id + 1000) });
+    await this.operationRepo.create({
+      admin_id: req.admin.id,
+      order_id: newOrder.id,
+      status_id: 1,
+    });
     return this.findOne(newOrder.id);
   }
 
@@ -28,15 +33,29 @@ export class OrderService {
       include: [
         {
           association: 'operations',
-          include: [{ association: 'status' }, { association: 'admin' }],
+          include: [{ association: 'admin' }],
         },
         { all: true },
       ],
     });
-    // if (!allOrders.length) {
-    //   throw new NotFoundException('order not found');
-    // }
     return allOrders;
+  }
+
+  async findByUniqueId(unique: string) {
+    const order = await this.orderRepo.findOne({
+      where: { order_unique_id: unique },
+      include: [
+        {
+          association: 'operations',
+          include: [{ association: 'admin' }],
+        },
+        { all: true },
+      ],
+    });
+    if (!order) {
+      return { message: 'order not found' };
+    }
+    return order;
   }
 
   async findOne(id: number) {
@@ -45,7 +64,7 @@ export class OrderService {
       include: [
         {
           association: 'operations',
-          include: [{ association: 'status' }, { association: 'admin' }],
+          include: [{ association: 'admin' }],
         },
         { all: true },
       ],

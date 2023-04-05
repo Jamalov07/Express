@@ -2,10 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsNumber, IsString } from 'class-validator';
 
 export class UpdateOrderDto {
-  @ApiProperty({ example: 'a10321', description: 'Order unique id' })
-  @IsOptional()
-  @IsString()
-  order_unique_id: string;
   @ApiProperty({ example: 'Sobirov Komil', description: 'Client full name' })
   @IsOptional()
   @IsString()
@@ -25,19 +21,8 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsNumber()
   summa: number;
-  @ApiProperty({ example: 1, description: 'Currency type id' })
+  @ApiProperty({ example: '120 000', description: 'Product summa' })
   @IsOptional()
   @IsNumber()
-  currency_type_id: number;
-  @ApiProperty({ example: '10a103aa', description: 'Truck symbol' })
-  @IsOptional()
-  @IsString()
-  truck: string;
-  @ApiProperty({
-    example: 'about order',
-    description: 'Order description',
-  })
-  @IsOptional()
-  @IsString()
-  description: string;
+  advance_payment: number;
 }

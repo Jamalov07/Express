@@ -17,9 +17,7 @@ interface OrderAttr {
   phone_number: string;
   product_link: string;
   summa: number;
-  currency_type_id: number;
-  truck: string;
-  description: string;
+  advance_payment: number;
 }
 
 @Table({ tableName: 'order' })
@@ -38,7 +36,7 @@ export class Order extends Model<Order, OrderAttr> {
   @ApiProperty({ example: 'a10321', description: 'Order unique id' })
   @Column({ type: DataType.STRING })
   order_unique_id: string;
-  
+
   @ApiProperty({ example: 'Sobirov Komil', description: 'Client full name' })
   @Column({ type: DataType.STRING })
   full_name: string;
@@ -54,23 +52,9 @@ export class Order extends Model<Order, OrderAttr> {
   @ApiProperty({ example: '120 000', description: 'Product summa' })
   @Column({ type: DataType.DECIMAL })
   summa: number;
-
-  @ApiProperty({ example: 1, description: 'Currency type id' })
-  @ForeignKey(() => CurrencyType)
-  @Column({ type: DataType.INTEGER })
-  currency_type_id: number;
-  @BelongsTo(() => CurrencyType)
-  currencyType: CurrencyType;
-
-  @ApiProperty({ example: '10a103aa', description: 'Truck symbol' })
-  @Column({ type: DataType.STRING })
-  truck: string;
-  @ApiProperty({
-    example: 'about order',
-    description: 'Order description',
-  })
-  @Column({ type: DataType.TEXT })
-  description: string;
+  @ApiProperty({ example: '120 000', description: 'Product summa' })
+  @Column({ type: DataType.DECIMAL })
+  advance_payment: number;
 
   @HasMany(() => Operation)
   operations: Operation[];
