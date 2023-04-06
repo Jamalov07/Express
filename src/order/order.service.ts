@@ -9,6 +9,8 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
 import { Operation } from '../operation/entities/operation.entity';
 import { ReqWithAdmin } from '../interfaces/ReqWithAdmin';
+import { SearchDto } from './dto/search-order.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class OrderService {
@@ -85,5 +87,48 @@ export class OrderService {
     const order = await this.findOne(id);
     await this.orderRepo.destroy({ where: { id } });
     return { message: 'deleted', order };
+  }
+
+  async searchOrders(body: SearchDto) {
+    const { full_name, order_unique_id, start_date, end_date } = body;
+    console.log(body);
+
+    const whereClause: any = {};
+
+    if (full_name) {
+      whereClause.full_name = {
+        [Op.iLike]: `%${full_name}%`,
+      };
+    }
+
+    if (order_unique_id) {
+      whereClause.order_unique_id = {
+        [Op.iLike]: `%${order_unique_id}%`,
+      };
+    }
+
+    if (start_date && end_date) {
+      whereClause.createdAt = {
+        [Op.between]: [
+          new Date(`${start_date}T00:00:00Z`),
+          new Date(`${end_date}T23:59:59Z`),
+        ],
+      };
+    } else if (start_date) {
+      whereClause.createdAt = {
+        [Op.gte]: new Date(`${start_date}T00:00:00Z`),
+        [Op.lt]: new Date(`${start_date}T23:59:59Z`),
+      };
+    } else if (end_date) {
+      whereClause.createdAt = {
+        [Op.gte]: new Date(`${end_date}T00:00:00Z`),
+        [Op.lt]: new Date(`${end_date}T23:59:59Z`),
+      };
+    }
+
+    const orders = await this.orderRepo.findAll({
+      where: whereClause,
+    });
+    return orders;
   }
 }

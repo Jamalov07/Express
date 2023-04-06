@@ -9,12 +9,14 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { AdminGuard } from '../guards/admin.guard';
 import { ReqWithAdmin } from '../interfaces/ReqWithAdmin';
+import { SearchDto } from './dto/search-order.dto';
 
 @ApiTags('Order')
 @Controller('order')
@@ -30,6 +32,11 @@ export class OrderController {
   @Get()
   findAll() {
     return this.orderService.findAll();
+  }
+
+  @Get('search')
+  searchOrders(@Query() orderBody: SearchDto) {
+    return this.orderService.searchOrders(orderBody);
   }
 
   @Get('unique/:id')
