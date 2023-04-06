@@ -48,6 +48,11 @@ export class OperationController {
     return this.operationService.update(+id, updateOperationDto);
   }
 
+  @Delete('restart/:id')
+  restart(@Param('id') id: number) {
+    return this.operationService.restartOrder(id);
+  }
+
   @UseGuards(CreatorGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -9,6 +9,7 @@ import { Order } from '../order/entities/order.entity';
 import { CreateOperationDto } from './dto/create-operation.dto';
 import { UpdateOperationDto } from './dto/update-operation.dto';
 import { Operation } from './entities/operation.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class OperationService {
@@ -32,7 +33,7 @@ export class OperationService {
         throw new BadRequestException(
           'Status incorrect or order operations in this order  finished',
         );
-      } 
+      }
     }
 
     let adminId = req.admin.id;
@@ -72,5 +73,30 @@ export class OperationService {
     const operation = await this.findOne(id);
     await this.operationRepo.destroy({ where: { id } });
     return { message: 'deleted', operation };
+  }
+
+  async restartOrder(orderId: number) {
+    const operations = await this.operationRepo.findAll({
+      where: {
+        order_id: orderId,
+        description: {
+          [Op.not]: null,
+        },
+      },
+    });
+    console.log(operations);
+    await this.operationRepo.destroy({
+      where: {
+        order_id: orderId,
+        description: {
+          [Op.not]: null,
+        },
+      },
+    });
+    const start = await this.operationRepo.findOne({
+      where: { order_id: orderId },
+    });
+
+    return start;
   }
 }
