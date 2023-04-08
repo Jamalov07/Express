@@ -131,4 +131,17 @@ export class OrderService {
     });
     return orders;
   }
+
+  async getPageOrder(page: number) {
+    console.log(page);
+    if (isNaN(+page)) {
+      throw new BadRequestException('Page is not  number');
+    }
+    const orders = await this.orderRepo.findAll({
+      offset: (page - 1) * 10,
+      limit: 10,
+      include: { all: true },
+    });
+    return orders;
+  }
 }

@@ -39,6 +39,12 @@ export class OrderController {
     return this.orderService.searchOrders(orderBody);
   }
 
+  @UseGuards(AdminGuard)
+  @Get('page/:page')
+  teacherGroups(@Param('page') page: number) {
+    return this.orderService.getPageOrder(page);
+  }
+
   @Get('unique/:id')
   findByUnique(@Param('id') id: string) {
     return this.orderService.findByUniqueId(id);
