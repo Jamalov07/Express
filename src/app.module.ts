@@ -24,7 +24,7 @@ import { ClientB } from './bot-models/client.model';
     TelegrafModule.forRootAsync({
       imports: [],
       useFactory: () => ({
-        token: '5866586224:AAHMx6wSLE3_8lZ-bd_l4mNLta7L6tokHBM',
+        token: process.env.BOT_TOKEN,
         middlewares: [],
       }),
     }),
