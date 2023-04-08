@@ -11,6 +11,7 @@ import { Operation } from '../operation/entities/operation.entity';
 import { ReqWithAdmin } from '../interfaces/ReqWithAdmin';
 import { SearchDto } from './dto/search-order.dto';
 import { Op } from 'sequelize';
+import * as Otpgenerator from 'otp-generator';
 
 @Injectable()
 export class OrderService {
@@ -21,7 +22,13 @@ export class OrderService {
 
   async create(createOrderDto: CreateOrderDto, req: ReqWithAdmin) {
     const newOrder = await this.orderRepo.create(createOrderDto);
-    await newOrder.update({ order_unique_id: String(newOrder.id + 1000) });
+    let str = Otpgenerator.generate(2, {
+      upperCaseAlphabets: true,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+    str = `${str}${newOrder.id+1000}`;
+    await newOrder.update({ order_unique_id: str });
     await this.operationRepo.create({
       admin_id: req.admin.id,
       order_id: newOrder.id,
@@ -128,6 +135,7 @@ export class OrderService {
 
     const orders = await this.orderRepo.findAll({
       where: whereClause,
+      include: { all: true },
     });
     return orders;
   }

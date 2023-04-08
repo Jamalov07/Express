@@ -11,13 +11,28 @@ import { AdminModule } from './admin/admin.module';
 import { CurrencyTypeModule } from './currency_type/currency_type.module';
 import { StatusModule } from './status/status.module';
 import { ConfigModule } from '@nestjs/config';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { BotService } from './bot.service';
+import { BotUpdate } from './bot.updates';
+import { UserB } from './bot-models/user.model';
+import { AdminB } from './bot-models/admin.model';
+import { OrderB } from './bot-models/order.model';
+import { ClientB } from './bot-models/client.model';
 
 @Module({
   imports: [
+    TelegrafModule.forRootAsync({
+      imports: [],
+      useFactory: () => ({
+        token: '5866586224:AAHMx6wSLE3_8lZ-bd_l4mNLta7L6tokHBM',
+        middlewares: [],
+      }),
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env`,
     }),
+    SequelizeModule.forFeature([AdminB, UserB, ClientB, OrderB]),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -25,7 +40,7 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Order, Operation, Admin],
+      models: [Order, Operation, Admin, UserB, AdminB, OrderB, ClientB],
       autoLoadModels: true,
       logging: false,
     }),
@@ -33,7 +48,7 @@ import { ConfigModule } from '@nestjs/config';
     OperationModule,
     AdminModule,
   ],
-  controllers: [],
-  providers: [],
+
+  providers: [BotService, BotUpdate],
 })
 export class AppModule {}
