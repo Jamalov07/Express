@@ -4,8 +4,18 @@ import { UserB } from './bot-models/user.model';
 import { AdminB } from './bot-models/admin.model';
 import { ClientB } from './bot-models/client.model';
 import { OrderB } from './bot-models/order.model';
-import { Context, Markup } from 'telegraf';
+import { Context, Markup, Telegraf } from 'telegraf';
 import axios from 'axios';
+import { Cron, CronExpression } from '@nestjs/schedule';
+
+@Injectable()
+export class BotNameService {
+  bot: Telegraf;
+  constructor() {
+    this.bot = new Telegraf(process.env.BOT_TOKEN);
+  }
+}
+
 @Injectable()
 export class BotService {
   constructor(
@@ -13,6 +23,7 @@ export class BotService {
     @InjectModel(AdminB) private adminRepo: typeof AdminB,
     @InjectModel(ClientB) private clientRepo: typeof ClientB,
     @InjectModel(OrderB) private orderRepo: typeof OrderB,
+    private readonly botnameService: BotNameService,
   ) {}
 
   async onStart(ctx: Context) {
@@ -194,7 +205,9 @@ export class BotService {
                   initial_payment: ctx.message.text,
                   state: 'admin',
                 });
-                const admins = await this.adminRepo.findAll();
+                const admins = await this.adminRepo.findAll({
+                  where: { is_active: true },
+                });
                 let str: string = '';
                 str += `📅 Qabul qilindi: ${new Date().toDateString()}\n`;
                 str += `🔗 Buyurtma linki :${order.order_link}\n`;
@@ -369,8 +382,14 @@ export class BotService {
                     strToChannel += `🔗 Buyurtma linki: ${order.order_link}\n\n`;
                     strToChannel += `😎 Qabul qildi: ${user.full_name}`;
 
-                      await ctx.telegram.sendMessage('-1001829891493', strToChannel);
-                      await ctx.telegram.sendMessage(orderUser.user_id, "Ohirgi yuborgan buyurtmangiz muvaffaqqiyatli qo'shildi");
+                    await ctx.telegram.sendMessage(
+                      process.env.GROPU_TOKEN,
+                      strToChannel,
+                    );
+                    await ctx.telegram.sendMessage(
+                      orderUser.user_id,
+                      "Ohirgi yuborgan buyurtmangiz muvaffaqqiyatli qo'shildi",
+                    );
                     await ctx.reply(
                       "Buyurtma muvaffaqqiyatli qo'shildi. Batafsil malumotni saytdan olishingiz mumkin",
                     );
@@ -655,6 +674,45 @@ export class BotService {
       }
     } else {
       await ctx.reply('/start');
+    }
+  }
+
+  @Cron('0 12 1/2 * *')
+  async checkDay() {
+    try {
+      const creator = await this.adminRepo.findOne({
+        where: { is_creator: true },
+      });
+      const response1 = await axios.post('http://localhost:3000/admin/login', {
+        user_name: creator.username,
+        password: creator.password,
+      });
+      // console.log(response1.data);
+      let token = response1.data.tokens.access_token;
+      const response = await axios.get('http://localhost:3000/order', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      let orders = response.data;
+      try {
+        orders.forEach(async (order, index) => {
+          if (order.operations.length != 3) {
+            setTimeout(async () => {
+              await this.botnameService.bot.telegram.sendMessage(
+                process.env.GROUP_TOKEN,
+                `${order.order_unique_id} li buyurtmaning vaqti o'tib ketdi`,
+              );
+            }, index * 5000);
+
+            console.log(order);
+          }
+        });
+      } catch (error) {
+        console.log(1);
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }

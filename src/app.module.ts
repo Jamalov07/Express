@@ -12,12 +12,14 @@ import { CurrencyTypeModule } from './currency_type/currency_type.module';
 import { StatusModule } from './status/status.module';
 import { ConfigModule } from '@nestjs/config';
 import { TelegrafModule } from 'nestjs-telegraf';
-import { BotService } from './bot.service';
+import { BotNameService, BotService } from './bot.service';
 import { BotUpdate } from './bot.updates';
 import { UserB } from './bot-models/user.model';
 import { AdminB } from './bot-models/admin.model';
 import { OrderB } from './bot-models/order.model';
 import { ClientB } from './bot-models/client.model';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BOT } from './bot.constants';
 
 @Module({
   imports: [
@@ -26,13 +28,15 @@ import { ClientB } from './bot-models/client.model';
       useFactory: () => ({
         token: process.env.BOT_TOKEN,
         middlewares: [],
+        botName: BOT,
       }),
     }),
+    SequelizeModule.forFeature([AdminB, UserB, ClientB, OrderB]),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env`,
     }),
-    SequelizeModule.forFeature([AdminB, UserB, ClientB, OrderB]),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.POSTGRES_HOST,
@@ -49,6 +53,6 @@ import { ClientB } from './bot-models/client.model';
     AdminModule,
   ],
 
-  providers: [BotService, BotUpdate],
+  providers: [BotService, BotUpdate, BotNameService],
 })
 export class AppModule {}
