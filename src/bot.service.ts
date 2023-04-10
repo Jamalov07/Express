@@ -383,7 +383,7 @@ export class BotService {
                     strToChannel += `😎 Qabul qildi: ${user.full_name}`;
 
                     await ctx.telegram.sendMessage(
-                      process.env.GROPU_TOKEN,
+                      process.env.GROUP_TOKEN,
                       strToChannel,
                     );
                     await ctx.telegram.sendMessage(
@@ -397,6 +397,7 @@ export class BotService {
                 }
               }
             } catch (error) {
+              console.log(error);
               await ctx.reply("Buyurtmani qo'shishda hatolik yuzag keldi");
             }
           } else {
