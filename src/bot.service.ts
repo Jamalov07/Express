@@ -263,7 +263,7 @@ export class BotService {
               let adminData: any = {};
               try {
                 const response = await axios.post(
-                  'http://localhost:3000/admin/login',
+                  'http://localhost:3003/admin/login',
                   options,
                 );
                 console.log(response.data);
@@ -326,7 +326,7 @@ export class BotService {
                 password: admin.password,
               };
               const response1 = await axios.post(
-                'http://localhost:3000/admin/login',
+                'http://localhost:3003/admin/login',
                 options,
               );
               if (
@@ -347,7 +347,7 @@ export class BotService {
                     advance_payment: +order.initial_payment,
                   };
                   const response = await axios.post(
-                    'http://localhost:3000/order',
+                    'http://localhost:3003/order',
                     options2,
                     {
                       headers: {
@@ -609,7 +609,7 @@ export class BotService {
               password: admin.password,
             };
             const response1 = await axios.post(
-              'http://localhost:3000/admin/login',
+              'http://localhost:3003/admin/login',
               options,
             );
             console.log(response1.data);
@@ -619,7 +619,7 @@ export class BotService {
               response1.data.tokens
             ) {
               let token = response1.data.tokens.access_token;
-              const response2 = await axios.get('http://localhost:3000/admin', {
+              const response2 = await axios.get('http://localhost:3003/admin', {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
@@ -684,13 +684,13 @@ export class BotService {
       const creator = await this.adminRepo.findOne({
         where: { is_creator: true },
       });
-      const response1 = await axios.post('http://localhost:3000/admin/login', {
+      const response1 = await axios.post('http://localhost:3003/admin/login', {
         user_name: creator.username,
         password: creator.password,
       });
       // console.log(response1.data);
       let token = response1.data.tokens.access_token;
-      const response = await axios.get('http://localhost:3000/order', {
+      const response = await axios.get('http://localhost:3003/order', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
